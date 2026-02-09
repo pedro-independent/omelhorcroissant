@@ -10,6 +10,14 @@ if (pageType === 'home') {
 
 function initLoader() {
 
+      // loaderAnimation = lottie.loadAnimation({
+      //   container: document.getElementById('loader-lottie'), // Your new Div ID
+      //   renderer: 'svg',
+      //   loop: false,
+      //   autoplay: false, // <--- THIS GUARANTEES IT STOPS
+      //   path: 'https://cdn.prod.website-files.com/690b30f06b0e2b9223fd700b/6989a9343015b25ab03db813_menu%20start.json'
+      // });
+
   const heading = document.querySelectorAll(".hero-h1");
   const buttons = document.querySelectorAll(".button-wrap, .hero-p");
   const lines = document.querySelectorAll(".nav-line");
@@ -101,6 +109,11 @@ function initLoader() {
       }, "<0.2"
     );
   }
+
+// tl.call(() => {
+//      loaderAnimation.play();
+//   }, null, "<");
+
 }
 
 initLoader();
@@ -294,7 +307,7 @@ function initGlobalParallax() {
   )
 }
 
-  initGlobalParallax();
+initGlobalParallax();
 
 
 function initModalBasic() {
@@ -345,7 +358,7 @@ function initModalBasic() {
   }
 }
 
-  initModalBasic();
+initModalBasic();
 
 
 /*  Image Reveal */
@@ -369,7 +382,7 @@ function revealImages() {
   });
 }
 
-  revealImages();
+revealImages();
 
 /* Values Section Reveal */
 function initRevealValue() {
@@ -391,7 +404,89 @@ function initRevealValue() {
 }
 
 initRevealValue();
-  
+
+function initDrawPathOnScroll() {
+  const mm = gsap.matchMedia();
+  const wrappers = document.querySelectorAll("[data-draw-scroll-wrap]");
+
+  mm.add(
+    {
+      isDesktop: "(min-width: 768px)",
+      isMobile: "(max-width: 767px)"
+    },
+    (context) => {
+      const { isDesktop, isMobile } = context.conditions;
+
+      wrappers.forEach((wrap) => {
+        // Kill any previous timeline for this wrapper
+        if (wrap._drawTl) {
+          if (wrap._drawTl.scrollTrigger) {
+            wrap._drawTl.scrollTrigger.kill();
+          }
+          wrap._drawTl.kill();
+          wrap._drawTl = null;
+        }
+
+        const desktopSVG = wrap.querySelector("[data-draw-scroll-desktop]");
+        const mobileSVG  = wrap.querySelector("[data-draw-scroll-mobile]"); // optional
+
+        // default: desktop
+        let svgToUse = desktopSVG;
+
+        // on mobile, use mobileSVG if it exists
+        if (isMobile && mobileSVG) {
+          svgToUse = mobileSVG;
+        }
+
+        if (!svgToUse) return;
+
+        const path = svgToUse.querySelector("[data-draw-scroll-path]");
+        if (!path) return;
+
+        const tl = gsap.timeline({
+          defaults: {
+            ease: "linear" // scroll speed controls easing
+          },
+          scrollTrigger: {
+            trigger: wrap,
+            start: "clamp(top center)",  // When top of wrap reaches center of viewport
+            end: "clamp(bottom center)", // When bottom of wrap reaches center of viewport
+            scrub: true,
+            invalidateOnRefresh: true
+          }
+        });
+
+        tl.fromTo(path,
+          { drawSVG: 0 },
+          { drawSVG: "100%", duration: 1 }
+        );
+
+        // Keep a reference so we can kill it on breakpoint change
+        wrap._drawTl = tl;
+      });
+
+      // Make sure ScrollTrigger recalculates
+      ScrollTrigger.refresh();
+
+      // Cleanup when breakpoint changes
+      return () => {
+        wrappers.forEach((wrap) => {
+          if (wrap._drawTl) {
+            if (wrap._drawTl.scrollTrigger) {
+              wrap._drawTl.scrollTrigger.kill();
+            }
+            wrap._drawTl.kill();
+            wrap._drawTl = null;
+          }
+        });
+      };
+    }
+  );
+}
+
+initDrawPathOnScroll();
+
+
 /* Cards Fanning Animation */
 function initCardFan() {
   const cards = document.querySelectorAll('.menu-item');
@@ -450,7 +545,7 @@ function initCardFan() {
   });
 }
 
-  initCardFan();
+initCardFan();
 
 
  /* Accordion Faqs */
@@ -478,7 +573,7 @@ function initAccordionCSS() {
   });
 }
 
-  initAccordionCSS();
+initAccordionCSS();
 
 // /* Wheel Animation */
 function initProcessAnimation() {
