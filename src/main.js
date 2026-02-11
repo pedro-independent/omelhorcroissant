@@ -690,6 +690,50 @@ initProcessAnimation();
 
 }
 
+/* MOBILE MENU */
+function initMobileMenu() {
+  if (window.matchMedia("(max-width: 991px)").matches) {
+    const menuBtn = document.querySelector(".nav-menu-btn");
+    const menuBg = document.querySelector(".menu-bg");
+    const navMobile = document.querySelector(".nav-mobile");
+    //const navLogo = document.querySelector(".wildbran-logo");
+
+    if (!menuBtn || !menuBg || !navMobile || !navLogo) return;
+
+    // Initial states
+    gsap.set(menuBg, { height: "0%" });
+    gsap.set(navMobile, { opacity: 0, display: "none" });
+
+    // Timeline
+    const tl = gsap.timeline({ paused: true, reversed: true });
+
+    tl.to(menuBg, {
+      display: "block",
+      height: "100vh",
+      duration: 0.5,
+      ease: "power2.inOut",
+    })
+      .set(navMobile, { display: "flex" }, "-=0.3") // make it appear in layout
+      .to(navMobile, { opacity: 1, duration: 0.1 }, "<"); // fade it in
+
+    // Toggle logic
+    menuBtn.addEventListener("click", () => {
+      if (tl.reversed()) {
+        tl.play();
+        document.body.style.overflow = "hidden";
+        document.body.classList.add("menu-open");
+      } else {
+        // fade out nav before collapsing bg
+        gsap.to(navMobile, { opacity: 0, duration: 0.2, ease: "expo.out" });
+        tl.reverse();
+        document.body.style.overflow = "";
+        document.body.classList.remove("menu-open");
+      }
+    });
+  }
+}
+
+initMobileMenu();
 
 if (pageType === 'legal') {
     const richText = document.querySelector(".legal-text");
