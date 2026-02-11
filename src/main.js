@@ -386,21 +386,30 @@ revealImages();
 
 /* Values Section Reveal */
 function initRevealValue() {
+  
+  let mm = gsap.matchMedia();
+
+  mm.add({
+    isMobile: "(max-width: 768px)",
+    isDesktop: "(min-width: 769px)",
+  }, (context) => {
+    
+    let { isMobile, isDesktop } = context.conditions;
 
     gsap.from(".values-item", {
-    x: window.innerWidth,
-    scale: 5,
-    ease: "expo.out",
-    stagger: 0.1,
-    scrollTrigger: {
-      trigger: ".about-container",
-      start: "top 75%",
-      end: "bottom top",
-      scrub: true,
-      //toggleActions: "play none none reverse",
-    }
-  });
+      x: isMobile ? "200vw" : window.innerWidth,
+      scale: isMobile ? 2 : 5,                                  
+      ease: "expo.out",
+      stagger: 0.1,
+      scrollTrigger: {
+        trigger: ".about-container",
+        start: "top 75%",
+        end: "bottom top",
+        scrub: true,
+      }
+    });
 
+  });
 }
 
 initRevealValue();
@@ -682,4 +691,46 @@ initProcessAnimation();
 }
 
 
+if (pageType === 'legal') {
+    const richText = document.querySelector(".legal-text");
+    const anchorMenu = document.querySelector(".legal-sticky-nav");
+
+    if (!richText || !anchorMenu) return;
+
+    // Clear any existing menu items (in case of rerender)
+    anchorMenu.innerHTML = "";
+
+    const headings = richText.querySelectorAll("h2");
+    const usedIds = new Set(); // To ensure uniqueness
+
+    headings.forEach((heading, index) => {
+      // Generate a slug from the heading text
+      let slug = heading.textContent
+        .toLowerCase()
+        .trim()
+        .replace(/[^\w\s-]/g, '')        // Remove punctuation
+        .replace(/\s+/g, '-')            // Replace spaces with hyphens
+        .replace(/-+/g, '-');            // Remove duplicate hyphens
+
+      // Ensure ID is unique by appending a number if needed
+      let uniqueSlug = slug;
+      let counter = 1;
+      while (usedIds.has(uniqueSlug)) {
+        uniqueSlug = `${slug}-${counter++}`;
+      }
+      usedIds.add(uniqueSlug);
+
+      heading.id = uniqueSlug;
+
+      // Create link element
+      const link = document.createElement("a");
+      link.href = `#${uniqueSlug}`;
+      link.textContent = heading.textContent;
+      link.classList.add("anchor-link"); // Optional styling class
+
+      anchorMenu.appendChild(link);
+    });
+} 
+
 });
+
