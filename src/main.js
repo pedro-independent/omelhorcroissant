@@ -696,7 +696,7 @@ function initMobileMenu() {
     const menuBtn = document.querySelector(".nav-menu-btn");
     const menuBg = document.querySelector(".menu-bg");
     const navMobile = document.querySelector(".nav-mobile");
-    //const navLogo = document.querySelector(".wildbran-logo");
+    const navLogo = document.querySelector(".logo");
 
     if (!menuBtn || !menuBg || !navMobile || !navLogo) return;
 
