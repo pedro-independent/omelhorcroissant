@@ -590,27 +590,28 @@ function initProcessAnimation() {
 
   const wheelCircle = document.querySelector('.wheel circle');
   
-  // Define precise checkpoints for each step based on the clock position
-  // 0.0 = 12 o'clock (Top)
-  // 0.25 = 3 o'clock (Right)
-  // 0.375 = ~4:30 (Bottom Right)
-  // 0.5 = 6 o'clock (Bottom) - This is Step 4
-  // 0.75 = 9 o'clock (Left)
+  // Safety check: stop if no wheel is found (prevents errors on pages without the wheel)
+  if (!wheelCircle) return; 
+
   const steps = [
-    { threshold: 0.0,   class: '.is--1', imgIndex: 0 }, // Top
-    { threshold: 0.25,  class: '.is--2', imgIndex: 1 }, // Right
-    { threshold: 0.42,  class: '.is--3', imgIndex: 2 }, // Bot-Right
-    { threshold: 0.58,   class: '.is--4', imgIndex: 3 }, // Bottom
-    { threshold: 0.75,  class: '.is--5', imgIndex: 4 }  // Left
+    { threshold: 0.0,   class: '.is--1', imgIndex: 0 }, 
+    { threshold: 0.25,  class: '.is--2', imgIndex: 1 }, 
+    { threshold: 0.42,  class: '.is--3', imgIndex: 2 }, 
+    { threshold: 0.58,  class: '.is--4', imgIndex: 3 }, 
+    { threshold: 0.75,  class: '.is--5', imgIndex: 4 }  
   ];
 
-  // 1. Setup Wheel Stroke
+  // 1. Setup Wheel Stroke & Rotation (The Fix)
   const radius = wheelCircle.getAttribute('r');
-  const circumference = 2 * Math.PI * radius;
+  // Handle cases where r might be a percentage or missing (optional safety)
+  const rValue = radius ? parseFloat(radius) : 0; 
+  const circumference = 2 * Math.PI * rValue;
   
   gsap.set(wheelCircle, {
     strokeDasharray: circumference,
-    strokeDashoffset: circumference // Start empty
+    strokeDashoffset: circumference,
+    transformOrigin: "center center", // Rotates around true center
+    rotation: -90 // Forces start at 12 o'clock
   });
 
   // 2. Create Timeline linked to Scroll
@@ -619,7 +620,7 @@ function initProcessAnimation() {
       trigger: ".process-track",
       start: "top top", 
       end: "bottom bottom", 
-      scrub: 0.5, // Slight smoothing for better feel
+      scrub: 0.5, 
       onUpdate: (self) => updateActiveStep(self.progress)
     }
   });
@@ -631,44 +632,37 @@ function initProcessAnimation() {
     duration: 1
   });
 
-  // 4. Logic to update active classes based on progress
+  // 4. Logic to update active classes
   function updateActiveStep(progress) {
-    // Find the step that corresponds to the current progress
-    // We reverse the array to find the *last* threshold passed
     let activeStepIndex = 0;
     
-    // Check which zone we are in
-    if (progress >= 0.75) activeStepIndex = 4;      // Step 5
-    else if (progress >= 0.58) activeStepIndex = 3;  // Step 4
-    else if (progress >= 0.42) activeStepIndex = 2; // Step 3
-    else if (progress >= 0.25) activeStepIndex = 1; // Step 2
-    else activeStepIndex = 0;                       // Step 1
+    if (progress >= 0.75) activeStepIndex = 4;      
+    else if (progress >= 0.58) activeStepIndex = 3;  
+    else if (progress >= 0.42) activeStepIndex = 2; 
+    else if (progress >= 0.25) activeStepIndex = 1; 
+    else activeStepIndex = 0;                       
 
-    // Update classes only if necessary (performance optimization)
-    const currentActiveDot = document.querySelector(`.process-dot.is-active`);
     const newDotClass = steps[activeStepIndex].class;
-    
-    // Only update DOM if the active step has changed
+    const currentActiveDot = document.querySelector(`.process-dot.is-active`);
+
+    // Only update if the active step has actually changed
     if (!currentActiveDot || !currentActiveDot.classList.contains(newDotClass.replace('.',''))) {
       
-      // Reset all
+      // Clean up previous active states
       document.querySelectorAll('.label-item, .step-img, .process-dot').forEach(el => {
         el.classList.remove('is-active');
       });
 
-      // Activate new elements using the shared class suffix (e.g., .is--4)
+      // Define target suffix
       const targetSuffix = steps[activeStepIndex].class;
       
-      // 1. Activate Dot
+      // Activate Elements
       const dot = document.querySelector(`.process-dot${targetSuffix}`);
       if(dot) dot.classList.add('is-active');
 
-      // 2. Activate Label
       const label = document.querySelector(`.label-item${targetSuffix}`);
       if(label) label.classList.add('is-active');
 
-      // 3. Activate Image
-      // We map images by index to ensure 100% accuracy
       const images = document.querySelectorAll('.center-images-container .step-img');
       if(images[steps[activeStepIndex].imgIndex]) {
         images[steps[activeStepIndex].imgIndex].classList.add('is-active');
