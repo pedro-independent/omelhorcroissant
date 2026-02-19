@@ -10,14 +10,6 @@ if (pageType === 'home') {
 
 function initLoader() {
 
-      // loaderAnimation = lottie.loadAnimation({
-      //   container: document.getElementById('loader-lottie'), // Your new Div ID
-      //   renderer: 'svg',
-      //   loop: false,
-      //   autoplay: false, // <--- THIS GUARANTEES IT STOPS
-      //   path: 'https://cdn.prod.website-files.com/690b30f06b0e2b9223fd700b/6989a9343015b25ab03db813_menu%20start.json'
-      // });
-
   const heading = document.querySelectorAll(".hero-h1");
   const buttons = document.querySelectorAll(".button-wrap, .hero-p");
   const lines = document.querySelectorAll(".nav-line");
