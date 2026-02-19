@@ -5,7 +5,7 @@ CustomEase.create("loader-ease", "0.625, 0.05, 0, 1");
 
 /* Route page scripts */
 const pageType = document.body.getAttribute('data-page');
-
+//teste
 if (pageType === 'home') {
 
 function initLoader() {
